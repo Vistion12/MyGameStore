@@ -48,9 +48,9 @@
 				<a asp-controller="Game" asp-action="Add" asp-route-id="@Model.Id" class="btn btn-success" type="button">Добавить в корзину</a>
 			</div>
 			<div>
-				<button class="btn btn-primary" type="button">
+				<a asp-controller="Game" asp-action="AddWishList" asp-route-id="@Model.Id" class="btn btn-primary" type="button">
 					Добавить в список желаемого
-				</button>
+				</a>
 
 			</div>
 		</div>

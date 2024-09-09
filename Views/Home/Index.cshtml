@@ -16,7 +16,7 @@
 							<h5 class="card-title">@gameProduct.Title</h5>
 							<p class="card-text">@gameProduct.Description.Truncate(40)...</p>
 							<p class="card-text">@gameProduct.Price</p>
-							<a href="#" class="btn btn-primary">Купить</a>
+                            <a asp-controller="Game" asp-action="Details" asp-route-id="@gameProduct.Id" class="btn btn-primary">Купить</a>
 						</div>
                     </a>                   
                 </div>

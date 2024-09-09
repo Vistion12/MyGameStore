@@ -1,1 +1,54 @@
-﻿<h1>список желаемого</h1>
+﻿@using MyGameStore.Extensions
+@using MyGameStore.ViewModel
+@using MyGameStoreModel.Entities
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@model List<WishList>
+
+<section class="h-100 h-custom" style="background-color: #eee;">
+    <div class="container py-5 h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col">
+                <div class="card">
+                    <div class="card-body p-4">
+                        <div class="row">
+                            <div class="col-lg-7">
+                                <h5 class="mb-3">
+                                    <a href="#!" class="text-body">
+                                        Список желаемого
+                                    </a>
+                                </h5>
+                                <hr>                   
+                                @foreach (var wishList in Model)
+                                {
+                                    <div class="card mb-3">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between">
+                                                <div class="d-flex flex-row align-items-center">
+                                                    <div>
+                                                        <img src="@wishList.Gameproduct.TitulUrl"
+                                                             class="img-fluid rounded-3" alt="@wishList.Gameproduct.Title" style="width: 65px;">
+                                                    </div>
+                                                    <div class="ms-3">
+                                                        <h5>@wishList.Gameproduct.Title</h5>
+                                                        <p class="small mb-0">@wishList.Gameproduct.Description.Truncate(60)...</p>
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex flex-row align-items-center">
+                                                    <div style="width: 90px;">
+                                                        <h5 class="mb-0">@wishList.Gameproduct.Price р</h5>
+                                                    </div>
+                                                    <a asp-controller="Cart" asp-action="Delete" asp-route-id="@wishList.Gameproduct.Id" type="button" class="btn btn-danger">Удалить</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>                           
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,14 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyGameStore.Repository;
 using MyGameStore.Repository.Interfaces;
+using MyGameStore.ViewModel;
 using MyGameStoreModel.Data;
+using MyGameStoreModel.Entities;
 using MyGameStoreModel.Repositories;
 using MyGameStoreModel.Repositories.Interfaces;
 
 namespace MyGameStore.Controllers;
 
-public class GameController(GameShopContext gameShopContext, IGameProductRepository gameProductRepository, IRepositoryCart repositoryCart)  : Controller
+public class GameController(UserManager<User> userManager, GameShopContext gameShopContext, IGameProductRepository gameProductRepository, IRepositoryCart repositoryCart)  : Controller
 {
 	public async Task <IActionResult> Details(int id)
 	{
@@ -28,5 +31,20 @@ public class GameController(GameShopContext gameShopContext, IGameProductReposit
 		repositoryCart.Add(gameProduct);
 
 		return Redirect("~/Cart/Index");
+	}
+
+	public async Task <IActionResult> AddWishList(int Id)
+	{
+		var gameProduct = await gameProductRepository.GetGameProductsAsync(Id);
+		var user = await userManager.FindByEmailAsync("n89190245729@gmail.com");
+
+		var WishList = new WishList
+		{ 
+			Gameproduct = gameProduct ,
+			user = user
+		};
+		await gameShopContext.WishList.AddAsync(WishList);
+		await gameShopContext.SaveChangesAsync();
+		return RedirectToAction("Details", "Game");
 	}
 }
