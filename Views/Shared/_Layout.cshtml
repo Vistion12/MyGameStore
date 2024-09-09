@@ -9,7 +9,7 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">MyGameStore</a>
+            <a class="navbar-brand" asp-controller="Home" asp-action="Index">MyGameStore</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -20,22 +20,21 @@
                             Магазин
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="/Home/PopularGames">Популярное</a></li>
-                            <li><a class="dropdown-item" href="/Home/Recommendations">Рекомендации</a></li>
-                            <li><a class="dropdown-item" href="/Home/WishList">Список желаемого </a></li>
+                            <li><a class="dropdown-item" asp-controller="Home" asp-action="PopularGames">Популярное</a></li>
+                            <li><a class="dropdown-item" asp-controller="Home" asp-action="Recommendations">Рекомендации</a></li>
+                            <li><a class="dropdown-item" asp-controller="Home" asp-action="WishList">Список желаемого </a></li>
                         </ul>
                     </li>                    
                     <li class="nav-item active">
-                        <a class="nav-link" href="/Library/Index">Библиотека</a>
+                        <a class="nav-link" asp-controller="Library" asp-action="Index">Библиотека</a>
                     </li>
                     <li class="nav-item active">
-                        <a class="nav-link" href="/Profile/Index">Профиль</a>
+                        <a class="nav-link" asp-controller="Profile" asp-action="Index">Профиль</a>
                     </li>
                 </ul>
-                @* <form class="d-flex">
-                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                    <button class="btn btn-outline-success" type="submit">Search</button>
-                </form> *@
+                <div class="d-flex">                    
+                    <a asp-controller="Cart" asp-action="Index" class="btn btn-success">Корзина</a>
+                </div>
             </div>
         </div>
     </nav>

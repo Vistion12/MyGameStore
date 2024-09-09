@@ -1,26 +1,26 @@
-﻿@using MyGameStoreModel.Entities
+﻿@using MyGameStore.Extensions
+@using MyGameStoreModel.Entities
 @model List<GameProduct>
-
-
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 <div class="container">
-	<div class="row">
-		<div class="col-sm-6 col-lg-4">
-			@foreach (var gameProduct in Model)
-			{
-				<div class="card" style="width: 18rem;">
-					<img src="@gameProduct.TitulUrl" class="card-img-top" alt="@gameProduct.Title">
-					<div class="card-body">
-						<h5 class="card-title">@gameProduct.Title</h5>
-						<p class="card-text">@gameProduct.Description</p>
-						<a href="#" class="btn btn-primary">Купить</a>
-					</div>
-				</div>
-			}
-			
-		</div>
-	</div>
+    <div class="row justify-content-center">
+        
+        @foreach (var gameProduct in Model)
+        {
+            <div class="col-sm-6 col-lg-4 d-flex justify-content-center mb-4">
+                
+                <div class="card" style="width: 18rem;">
+                    <a asp-controller="Game" asp-action="Details" asp-route-id="@gameProduct.Id" style="text-decoration: inherit; color: inherit">
+						<img src="@gameProduct.TitulUrl" class="card-img-top" alt="@gameProduct.Title">
+						<div class="card-body">
+							<h5 class="card-title">@gameProduct.Title</h5>
+							<p class="card-text">@gameProduct.Description.Truncate(40)...</p>
+							<p class="card-text">@gameProduct.Price</p>
+							<a href="#" class="btn btn-primary">Купить</a>
+						</div>
+                    </a>                   
+                </div>
+            </div>
+        }
+    </div>
 </div>
-
-
-
-
