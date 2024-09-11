@@ -1,26 +1,27 @@
-﻿@using MyGameStoreModel.Entities
+﻿@using MyGameStore.ViewModel
+@using MyGameStoreModel.Entities
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-@model GameProduct
+@model WishGameProduct
 <div class="container py-5">
 	<div class="row">
 		<div class="col-lg-6">
 			<div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
 				<div class="carousel-inner">
 					<div class="carousel-item active">
-						<video src="@Model.Videos[0].Url" class="d-block w-100" controls></video>
+						<video src="@Model.gameProduct.Videos[0].Url" class="d-block w-100" controls></video>
 					</div>
 
-					@for (int i = 1; i < Model.Videos.Count; i++)
+					@for (int i = 1; i < Model.gameProduct.Videos.Count; i++)
 					{
 						<div class="carousel-item">
-							<video src="@Model.Videos[i].Url" class="d-block w-100" controls></video>
+							<video src="@Model.gameProduct.Videos[i].Url" class="d-block w-100" controls></video>
 						</div>
 					}
 
-					@foreach (var image in Model.ImageUrls)
+					@foreach (var image in Model.gameProduct.ImageUrls)
 					{
 						<div class="carousel-item">
-							<img src="@image.Url" class="d-block w-100" alt="@Model.Title" />
+							<img src="@image.Url" class="d-block w-100" alt="@Model.gameProduct.Title" />
 						</div>
 					}
 				</div>
@@ -35,24 +36,42 @@
 			</div>
 		</div>
 		<div class="col-lg-6">
-			<h2 class="fw-bold">@Model.Title</h2>
-			@foreach (var item in Model.Genre)
+			<h2 class="fw-bold">@Model.gameProduct.Title</h2>
+			@foreach (var item in Model.gameProduct.Genre)
 			{
 				<p class="text-muted">@item.Title</p>
 			}
-			<h3 class="my-4">@Model.Price</h3>
+			<h3 class="my-4">@Model.gameProduct.Price</h3>
 			<p class="mb-4">
-				@Model.Description
+				@Model.gameProduct.Description
 			</p>
-			<div class="mb-4">
-				<a asp-controller="Game" asp-action="Add" asp-route-id="@Model.Id" class="btn btn-success" type="button">Добавить в корзину</a>
+			<div class="d-flex gap-3 mb-4">
+				@if (!Model.ContainsGameProducts)
+				{
+					<a asp-controller="Game" asp-action="Add" asp-route-id="@Model.gameProduct.Id" class="btn btn-success" type="button">Добавить в корзину</a>
+				}
+				else
+				{
+					<a class="btn btn-secondary" >игра уже куплена</a>
+				}
 			</div>
-			<div>
-				<a asp-controller="Game" asp-action="AddWishList" asp-route-id="@Model.Id" class="btn btn-primary" type="button">
-					Добавить в список желаемого
-				</a>
-
-			</div>
+			
+			@if (!Model.ContainsWishGameProducts)
+			{
+				<div>
+					<a asp-controller="Game" asp-action="AddWishList" asp-route-id="@Model.gameProduct.Id" class="btn btn-primary" type="button">
+						Добавить в список желаемого
+					</a>
+				</div>
+			}
+			else
+			{
+				<div>
+					<a asp-controller="Game" asp-action="DeleteWishList" asp-route-id="@Model.gameProduct.Id" class="btn btn-danger" type="button">
+						удолить из списка желаемого 
+					</a>
+				</div>
+			}
 		</div>
 		<h5>Системные требования</h5>
 
@@ -62,40 +81,40 @@
 			<tbody>
 				<tr>
 					<th scope="row">ОС</th>
-					<td>@Model.MinimumSystemRequirements.OS</td>
+					<td>@Model.gameProduct.MinimumSystemRequirements.OS</td>
 				</tr>
 				<tr>
 					<th scope="row">Процессор</th>
-					<td>@Model.MinimumSystemRequirements.Processor</td>
+					<td>@Model.gameProduct.MinimumSystemRequirements.Processor</td>
 				</tr>
 				<tr>
 					<th scope="row">Память</th>
-					<td>@Model.MinimumSystemRequirements.Memory</td>
+					<td>@Model.gameProduct.MinimumSystemRequirements.Memory</td>
 				</tr>
 				<tr>
 					<th scope="row">Графика</th>
-					<td>@Model.MinimumSystemRequirements.Graphics</td>
+					<td>@Model.gameProduct.MinimumSystemRequirements.Graphics</td>
 				</tr>
 				<tr>
 					<th scope="row">DirectX</th>
-					<td>@Model.MinimumSystemRequirements.DirectX</td>
+					<td>@Model.gameProduct.MinimumSystemRequirements.DirectX</td>
 				</tr>
 				<tr>
 					<th scope="row">Место на диске</th>
-					<td>@Model.MinimumSystemRequirements.Storage</td>
+					<td>@Model.gameProduct.MinimumSystemRequirements.Storage</td>
 				</tr>
-				@if (Model.MinimumSystemRequirements.SoundCard != null)
+				@if (Model.gameProduct.MinimumSystemRequirements.SoundCard != null)
 				{
 					<tr>
 						<th scope="row">Звуковая карта</th>
-						<td>@Model.MinimumSystemRequirements.SoundCard</td>
+						<td>@Model.gameProduct.MinimumSystemRequirements.SoundCard</td>
 					</tr>
 				}
-				@if (Model.MinimumSystemRequirements.Network != null)
+				@if (Model.gameProduct.MinimumSystemRequirements.Network != null)
 				{
 					<tr>
 						<th scope="row">Сеть</th>
-						<td>@Model.MinimumSystemRequirements.Network</td>
+						<td>@Model.gameProduct.MinimumSystemRequirements.Network</td>
 					</tr>
 				}
 			</tbody>
@@ -107,40 +126,40 @@
 			<tbody>
 				<tr>
 					<th scope="row">ОС</th>
-					<td>@Model.RecommendedSystemRequirements.OS</td>
+					<td>@Model.gameProduct.RecommendedSystemRequirements.OS</td>
 				</tr>
 				<tr>
 					<th scope="row">Процессор</th>
-					<td>@Model.RecommendedSystemRequirements.Processor</td>
+					<td>@Model.gameProduct.RecommendedSystemRequirements.Processor</td>
 				</tr>
 				<tr>
 					<th scope="row">Память</th>
-					<td>@Model.RecommendedSystemRequirements.Memory</td>
+					<td>@Model.gameProduct.RecommendedSystemRequirements.Memory</td>
 				</tr>
 				<tr>
 					<th scope="row">Графика</th>
-					<td>@Model.RecommendedSystemRequirements.Graphics</td>
+					<td>@Model.gameProduct.RecommendedSystemRequirements.Graphics</td>
 				</tr>
 				<tr>
 					<th scope="row">DirectX</th>
-					<td>@Model.RecommendedSystemRequirements.DirectX</td>
+					<td>@Model.gameProduct.RecommendedSystemRequirements.DirectX</td>
 				</tr>
 				<tr>
 					<th scope="row">Место на диске</th>
-					<td>@Model.RecommendedSystemRequirements.Storage</td>
+					<td>@Model.gameProduct.RecommendedSystemRequirements.Storage</td>
 				</tr>
-				@if (Model.RecommendedSystemRequirements.SoundCard != null)
+				@if (Model.gameProduct.RecommendedSystemRequirements.SoundCard != null)
 				{
 					<tr>
 						<th scope="row">Звуковая карта</th>
-						<td>@Model.RecommendedSystemRequirements.SoundCard</td>
+						<td>@Model.gameProduct.RecommendedSystemRequirements.SoundCard</td>
 					</tr>
 				}
-				@if (Model.RecommendedSystemRequirements.Network != null)
+				@if (Model.gameProduct.RecommendedSystemRequirements.Network != null)
 				{
 					<tr>
 						<th scope="row">Сеть</th>
-						<td>@Model.RecommendedSystemRequirements.Network</td>
+						<td>@Model.gameProduct.RecommendedSystemRequirements.Network</td>
 					</tr>
 				}
 			</tbody>

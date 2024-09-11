@@ -34,6 +34,9 @@ public class StartUp(IConfiguration configuration)
     {
         app.UseRouting();
 
+        app.UseAuthentication();
+        app.UseAuthorization();
+
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllerRoute(

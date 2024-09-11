@@ -11,7 +11,8 @@ public class AccountController : Controller
     private readonly UserManager<User> _userManager;
     private readonly SignInManager<User> _signInManager;
     private readonly GameShopContext _context;
-    public AccountController(UserManager<User> userManager, SignInManager<User> signInManager, GameShopContext context)
+    
+    public AccountController( UserManager<User> userManager, SignInManager<User> signInManager, GameShopContext context)
     {
         _context = context;
         _signInManager = signInManager;
@@ -27,6 +28,8 @@ public class AccountController : Controller
     [HttpPost]
     public async Task<IActionResult> Login(LoginViewModel loginViewModel)
     {
+
+        
         if (!ModelState.IsValid) return View(loginViewModel);
 
         var user = await _userManager.FindByEmailAsync(loginViewModel.EmailAddress);
@@ -52,4 +55,10 @@ public class AccountController : Controller
         TempData["Error"] = "Wrong credentials. Please try again";
         return View(loginViewModel);
     }
+
+    public async Task <IActionResult> Logout()
+    {
+		await _signInManager.SignOutAsync();
+		return RedirectToAction("Index","Home");
+	}
 }
