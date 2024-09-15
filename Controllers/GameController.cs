@@ -13,12 +13,21 @@ using System.Security.Claims;
 
 namespace MyGameStore.Controllers;
 
-public class GameController(GameShopContext gameShopContext, IGameProductRepository gameProductRepository, IRepositoryCart repositoryCart, IHttpContextAccessor httpContextAccessor) : Controller
+public class GameController(
+	GameShopContext gameShopContext,
+	IRepositoryWishList repositoryWishList,
+	IGameProductRepository gameProductRepository, 
+	IRepositoryCart repositoryCart, 
+	IHttpContextAccessor httpContextAccessor) : Controller
 {
 	public async Task<IActionResult> Details(int id)
 	{
-
-		var idUser = httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+		if(httpContextAccessor.HttpContext is null ||
+			httpContextAccessor.HttpContext.User is null ||
+			httpContextAccessor.HttpContext.User.Identity is null)
+		{ 
+			return BadRequest(); 
+		}
 
 		var gameProduct = await gameShopContext.GameProducts
 			.Include(gameProduct => gameProduct.Genre)
@@ -26,122 +35,112 @@ public class GameController(GameShopContext gameShopContext, IGameProductReposit
 			.Include(gameProduct => gameProduct.Videos)
 			.Include(gameProduct => gameProduct.MinimumSystemRequirements)
 			.Include(gameProduct => gameProduct.RecommendedSystemRequirements)
-			.FirstAsync(gameProduct => gameProduct.Id == id);
+			.SingleAsync(gameProduct => gameProduct.Id == id );
 
-		var WishList = gameShopContext.WishList
-			.Include(wishlist => wishlist.user)
-			.Include(wishlist => wishlist.Gameproduct)
-			.Where(wishlist => wishlist.user.Id == idUser && wishlist.Gameproduct.Id == id);
-
-		var cart = gameShopContext.carts
-			.Include(wishlist => wishlist.User)
-			.Include(wishlist => wishlist.gameProducts)
-			.Where(wishlist => wishlist.User.Id == idUser && wishlist.gameProducts.Contains(gameProduct));
-
-		var wishGameProduct = new WishGameProduct
+		var wishGameProductVM = new WishGameProductVM
 		{
 			gameProduct = gameProduct,
 
 		};
 
-
-		if (WishList.Any())
+		if (httpContextAccessor.HttpContext.User.Identity.IsAuthenticated)
 		{
-			wishGameProduct.ContainsWishGameProducts = true;
+			var idUser = httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
+			wishGameProductVM.ContainsGameProducts =
+				await gameShopContext.carts
+				.Include(wishlist => wishlist.User)
+				.Include(wishlist => wishlist.gameProducts)
+				.Where(wishlist =>
+				wishlist.User.Id == idUser &&
+				wishlist.gameProducts.Contains(gameProduct))
+				.AnyAsync();
+
+			wishGameProductVM.ContainsWishGameProducts=
+				await gameShopContext.WishList
+				.Include(wishlist => wishlist.user)
+				.Include(wishlist=> wishlist.Gameproduct)
+				.Where(wishlist => 
+				wishlist.user.Id ==  idUser &&
+				wishlist.Gameproduct.Id== id)
+				.AnyAsync();
 		}
-		
-		if(cart.Any())
-		{
-			wishGameProduct.ContainsGameProducts = true;
-		}
-
-
-		return View(wishGameProduct);
+		return View(wishGameProductVM);		
 	}
-	public async Task<IActionResult> Add(int id)
+	public async Task<IActionResult> AddToCart(int id)
 	{
+		if (httpContextAccessor.HttpContext is null ||
+			httpContextAccessor.HttpContext.User is null ||
+			httpContextAccessor.HttpContext.User.Identity is null)
+		{
+			return BadRequest();
+		}
+		if(!httpContextAccessor.HttpContext.User.Identity.IsAuthenticated)
+		{
+			return RedirectToAction("Login", "Account");
+		}
 		var gameProduct = await gameProductRepository.GetGameProductsAsync(id);
-
 		repositoryCart.Add(gameProduct);
-
-		return Redirect("~/Cart/Index");
+		return RedirectToAction("Index","Cart");
 	}
-	public async Task<IActionResult> AddWishList(int Id)
+
+	public async Task<IActionResult> AddWishList(int id)
 	{
+		if (httpContextAccessor.HttpContext is null ||
+			httpContextAccessor.HttpContext.User is null ||
+			httpContextAccessor.HttpContext.User.Identity is null)
+		{
+			return BadRequest();
+		}
+
+		if (!httpContextAccessor.HttpContext.User.Identity.IsAuthenticated)
+		{
+			return RedirectToAction("Login", "Account");
+		}
+
 		var idUser = httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
-		var User = await gameShopContext.Users.FirstAsync(user => user.Id == idUser);
-		var gameProduct = await gameShopContext.GameProducts
-			.Include(gameProduct => gameProduct.Genre)
-			.Include(gameProduct => gameProduct.ImageUrls)
-			.Include(gameProduct => gameProduct.Videos)
-			.Include(gameProduct => gameProduct.MinimumSystemRequirements)
-			.Include(gameProduct => gameProduct.RecommendedSystemRequirements)
-			.FirstAsync(gameProduct => gameProduct.Id == Id);
+		var user = await gameShopContext.Users.SingleAsync(user => user.Id == idUser);
+		
+		var gameProduct = await gameProductRepository.GetGameProductsAsync(id);
 
 		var newWishList = new WishList
 		{
 			Gameproduct = gameProduct,
-			user = (User)User
-		};
-		
-
-		var wishGameProduct = new WishGameProduct
-		{
-			gameProduct = gameProduct,
-
+			user = (User)user
 		};
 
-		wishGameProduct.ContainsWishGameProducts = true;
+		await repositoryWishList.AddAsync((User)user, gameProduct);
+		return RedirectToAction("Details", "Game", new { id = id });
+		//return RedirectToAction("Index", new RouteValueDictionary(new 
+		//	{ 
+		//		controller = "Game", 
+		//		action = "Details", 
+		//		Id = id 
+		//	}));
 
-		var cart = gameShopContext.carts
-			.Include(wishlist => wishlist.User)
-			.Include(wishlist => wishlist.gameProducts)
-			.Where(wishlist => wishlist.User.Id == idUser && wishlist.gameProducts.Contains(gameProduct));
-
-		if (cart.Any())
-		{
-			wishGameProduct.ContainsGameProducts = true;
-		}
-
-		await gameShopContext.WishList.AddAsync(newWishList);
-		await gameShopContext.SaveChangesAsync();
-
-		return View("Details", wishGameProduct); // 
 	}
 
 	public async Task<IActionResult> DeleteWishList(int id)
 	{
-		var idUser = httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
-		await gameShopContext.WishList
-			.Include(wishlist => wishlist.user)
-			.Include(wishlist => wishlist.Gameproduct)
-			.Where(wishlist=>wishlist.user.Id==idUser && wishlist.Gameproduct.Id==id)
-			.ExecuteDeleteAsync();
-		var gameProduct = await gameShopContext.GameProducts
-			.Include(gameProduct => gameProduct.Genre)
-			.Include(gameProduct => gameProduct.ImageUrls)
-			.Include(gameProduct => gameProduct.Videos)
-			.Include(gameProduct => gameProduct.MinimumSystemRequirements)
-			.Include(gameProduct => gameProduct.RecommendedSystemRequirements)
-			.FirstAsync(gameProduct => gameProduct.Id == id);
-
-		var cart = gameShopContext.carts
-			.Include(wishlist => wishlist.User)
-			.Include(wishlist => wishlist.gameProducts)
-			.Where(wishlist => wishlist.User.Id == idUser && wishlist.gameProducts.Contains(gameProduct));
-
-		var wishGameProduct = new WishGameProduct
+		if (httpContextAccessor.HttpContext is null ||
+			httpContextAccessor.HttpContext.User is null ||
+			httpContextAccessor.HttpContext.User.Identity is null)
 		{
-			gameProduct = gameProduct,
-
-		};
-
-		if (cart.Any())
-		{
-			wishGameProduct.ContainsGameProducts = true;
+			return BadRequest();
 		}
-		return View("Details", wishGameProduct); 
+
+		var idUser = httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+		await repositoryWishList.DeleteAsync(id,idUser);
+		return RedirectToAction("Details", "Game", new { id = id });
+		//return RedirectToAction("Index", new RouteValueDictionary(
+		//	new
+		//	{
+		//		controller = "Game",
+		//		action = "Details",
+		//		Id = id
+		//	}));
+
 
 	}
 }

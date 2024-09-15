@@ -1,1 +1,33 @@
-﻿<h1>популярные игры</h1>
+﻿@using MyGameStore.Extensions
+@using MyGameStoreModel.Entities
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+
+@model Dictionary<int,GameProduct>
+
+
+
+
+<div class="container">
+    <div class="row justify-content-center">
+        <h1>Популярные игры</h1>
+        
+        @foreach (var gameProduct in Model)
+        {
+            <div class="col-sm-6 col-lg-4 d-flex justify-content-center mb-4">
+
+                <div class="card" style="width: 18rem;">
+                    <a asp-controller="Game" asp-action="Details" asp-route-id="@gameProduct.Key" style="text-decoration: inherit; color: inherit">
+                        <img src="@gameProduct.Value.TitulUrl" class="card-img-top" alt="@gameProduct.Value.Title">
+                        <div class="card-body">
+                            <h5 class="card-title">@gameProduct.Value.Title</h5>
+                            <p class="card-text">@gameProduct.Value.Description.Truncate(40)...</p>
+                            <p class="card-text">@gameProduct.Value.Price</p>
+                            <a asp-controller="Game" asp-action="Details" asp-route-id="@gameProduct.Key" class="btn btn-primary">Купить</a>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+</div>

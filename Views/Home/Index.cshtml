@@ -2,9 +2,17 @@
 @using MyGameStoreModel.Entities
 @model List<GameProduct>
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+
+
 <div class="container">
     <div class="row justify-content-center">
-        
+        <form asp-controller="Home" asp-action="Index">
+            <p>
+                Title: <input type="text" name="SearchString" />
+                <input type="submit" value="поиск" />
+            </p>
+        </form>
         @foreach (var gameProduct in Model)
         {
             <div class="col-sm-6 col-lg-4 d-flex justify-content-center mb-4">

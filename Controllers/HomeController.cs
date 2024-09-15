@@ -1,28 +1,70 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MyGameStore.Extensions;
 using MyGameStoreModel.Data;
+using MyGameStoreModel.Entities;
 using MyGameStoreModel.Repositories.Interfaces;
 using System.Security.Claims;
 
 namespace MyGameStore.Controllers;
 
-public class HomeController(GameShopContext gameShopContext ,IGameProductRepository gameProductRepository, IHttpContextAccessor httpContextAccessor) : Controller
+
+
+public class HomeController(GameShopContext gameShopContext,
+    IGameProductRepository gameProductRepository,
+    IHttpContextAccessor httpContextAccessor) : Controller
 {
-    public async Task <IActionResult> Index()
+
+    private const int countPopGames = 100;
+
+    public async Task<IActionResult> Index()
     {
         var gameProducts = await gameProductRepository.GetAllGameProductsAsync();
         return View(gameProducts);
     }
-    public IActionResult PopularGames()
-    {        
+
+    //public async Task<IActionResult> Index(string searchString)
+    //{
+    //    var gameProducts = await gameProductRepository.GetAllGameProductsAsync();
+    //    gameProducts= gameProducts.Where(gameProduct=> gameProduct.Title.ToUpper().Contains(searchString.ToUpper())).ToList();
+    //    return View(gameProducts);
+    //}    
+
+    public async Task<IActionResult> PopularGames()
+    {
+        //var currentDate = DateTime.UtcNow;
+        //var monthAgo = new DateTime(currentDate.Year, currentDate.Month - 1, currentDate.Day);
+
+        var Carts = await gameShopContext.carts
+             .Include(cart => cart.gameProducts)
+             .Between(cart => cart.DatePurchase, DateTime.UtcNow.Date, DateTime.UtcNow.Date)
+             .ToListAsync();
+        var dictionary = new Dictionary<int, GameProduct>();
+        foreach (var cart in Carts)
+        {
+            if (dictionary.Count > 100)
+            {
+                break;
+            }
+            foreach (var gameProduct in cart.gameProducts)
+            {
+                if (dictionary.ContainsKey(gameProduct.Id))
+                {
+                    continue;
+                }
+                dictionary.Add(gameProduct.Id,gameProduct);
+            }
+
+        }
+
+        return View(dictionary);
+    }
+    public IActionResult Recommendations() // эксперты рекомендовали
+    {
         return View();
     }
-    public IActionResult Recommendations()
-    {        
-        return View();
-    }
-    public async Task <IActionResult> WishList()
+    public async Task<IActionResult> WishList()
     {
 
         var idUser = httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
@@ -32,7 +74,7 @@ public class HomeController(GameShopContext gameShopContext ,IGameProductReposit
             .Include(wishList => wishList.Gameproduct)
             .Where(wishlist => wishlist.user.Id == idUser)
             .ToListAsync();
-        
+
         return View(wishList);
     }
 
@@ -46,6 +88,6 @@ public class HomeController(GameShopContext gameShopContext ,IGameProductReposit
             .Where(wishlist => wishlist.Gameproduct.Id == Id && wishlist.user.Id == idUser)
             .ExecuteDeleteAsync();
 
-        return RedirectToAction("WishList","Home");
+        return RedirectToAction("WishList", "Home");
     }
 }

@@ -14,12 +14,14 @@ public class StartUp(IConfiguration configuration)
 {
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddControllersWithViews();
+        
         services.AddTransient<IGameProductRepository, GameProductRepository>();
         services.AddTransient<IGenreRepository, GenreRepository>();
         services.AddTransient<IImageUrlRepository, ImageUrlRepository>();
-        services.AddSingleton<IRepositoryCart, RepositoryCart>();
-        services.AddDbContext<GameShopContext>(options =>
+		services.AddTransient<IRepositoryWishList, RepositoryWishList>();
+		services.AddSingleton<IRepositoryCart, RepositoryCart>();
+		services.AddControllersWithViews();
+		services.AddDbContext<GameShopContext>(options =>
            options.UseSqlServer(configuration.GetConnectionString("GameShopContext") ??
                throw new InvalidOperationException("Connection string 'GameShopContext' not found.")));
         services.AddIdentity<User, IdentityRole>()
