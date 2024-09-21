@@ -71,10 +71,14 @@
 		</div>
 		<div class="col-lg-6">
 			<h2 class="fw-bold">@Model.gameProduct.Title</h2>
-			@foreach (var item in Model.gameProduct.Genre)
-			{
-				<p class="text-muted">@item.Title</p>
-			}
+			<h5>Категории</h5>			
+				<ul>
+				@foreach (var genre in Model.gameProduct.Genre)
+				{
+					<li>@genre.Title</li>
+				}
+				</ul>		
+
 			<h3 class="my-4">@Model.gameProduct.Price</h3>
 			<p class="mb-4">
 				@Model.gameProduct.Description

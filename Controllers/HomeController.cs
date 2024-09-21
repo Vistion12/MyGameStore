@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using MyGameStore.Core;
 using MyGameStore.Extensions;
 using MyGameStore.ViewModel;
 using MyGameStoreModel.Data;
@@ -17,49 +18,61 @@ public class HomeController(GameShopContext gameShopContext,
     IGameProductRepository gameProductRepository,
     IHttpContextAccessor httpContextAccessor) : Controller
 {
+    private const int pageSize = 6;
     private const int minValueMonth = -1;
     private const int countPopGames = 100;
 
-    public async Task<IActionResult> Index(string GameGenre, string NameSearchString)
+    public async Task<IActionResult> Index(
+        string selectedGenreGameProduct,
+        string selectedTitleGamePoduct,
+		SortGameProductState? sortGameProductState,
+        int page=1)
     {
 		var gameProductGenre = from g in gameShopContext.Genres
-						   select g;
+						   select g.Title;
 
 		var gameProducts = from g in gameShopContext.GameProducts
                            select g;
 
-        if (!string.IsNullOrEmpty(NameSearchString))
+        if (!string.IsNullOrEmpty(selectedTitleGamePoduct))
         {
-            gameProducts = gameProducts.Where(
-                gameProduct => 
-                gameProduct.Title.ToUpper().Contains(NameSearchString.ToUpper()));
+            gameProducts = gameProducts
+                .Where(gameProduct => gameProduct.Title.ToUpper().Contains(selectedTitleGamePoduct.ToUpper()));
         }
 
-		if (!string.IsNullOrEmpty(GameGenre))
+		if (!string.IsNullOrEmpty(selectedGenreGameProduct))
 		{
-			gameProducts = gameProducts
+            gameProducts = gameProducts
                 .Include(gameProduct => gameProduct.Genre)
-                .Where(gameProduct => 
-                            gameProduct.Genre.Where(genre=> 
-                                    genre.Title.Contains(GameGenre)).Any());
+                .Where(gameProduct =>
+                            gameProduct.Genre.Any(genre => genre.Title.Contains(selectedGenreGameProduct)));
 		}
 
-		var filteredGameProductVM = new FilteredGameProductVM
-        { 
-            GameGenres = new SelectList(await gameProductGenre.Select(genre=>genre.Title).ToListAsync()) ,
-            GameProducts= await gameProducts.ToListAsync() 
+        gameProducts = sortGameProductState switch
+        {
+            SortGameProductState.TitleAsc => gameProducts.OrderBy(gameProduct => gameProduct.Title),
+            SortGameProductState.TitleDesc => gameProducts.OrderByDescending(gameProduct => gameProduct.Title),
+           _ => gameProducts
         };
 
-        
-        return View(filteredGameProductVM);
+        var count = await gameProducts.CountAsync();
+        var gameProductsResult = await gameProducts
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        var gameProductsVM = new GameProductsVM
+        {
+            GameProducts = gameProductsResult,
+            PageViewModel = new(count, page, pageSize),
+            SortGPVM = new(sortGameProductState),
+            FilteredGP_VM = new(new(gameProductGenre), selectedGenreGameProduct, selectedTitleGamePoduct)
+
+        };
+		return View(gameProductsVM);
     }
 
-    //public async Task<IActionResult> Index(string searchString)
-    //{
-    //    var gameProducts = await gameProductRepository.GetAllGameProductsAsync();
-    //    gameProducts= gameProducts.Where(gameProduct=> gameProduct.Title.ToUpper().Contains(searchString.ToUpper())).ToList();
-    //    return View(gameProducts);
-    //}    
+       
 
     public async Task<IActionResult> PopularGames()
     {
