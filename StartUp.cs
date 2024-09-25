@@ -7,6 +7,8 @@ using MyGameStore.Repository;
 using MyGameStoreModel.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using GameShop.Repositoery.Repositories.Interfaces;
+using GameShop.Repositoery.Repositories;
 
 namespace MyGameStore;
 
@@ -14,7 +16,7 @@ public class StartUp(IConfiguration configuration)
 {
     public void ConfigureServices(IServiceCollection services)
     {
-        
+        services.AddTransient<IRepositoryRecommendedGameProduct, RepositoryRecommendedGameProduct>();
         services.AddTransient<IGameProductRepository, GameProductRepository>();
         services.AddTransient<IGenreRepository, GenreRepository>();
         services.AddTransient<IImageUrlRepository, ImageUrlRepository>();

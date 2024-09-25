@@ -2,16 +2,11 @@
 @using MyGameStoreModel.Entities
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
-
 @model Dictionary<int,GameProduct>
-
-
-
 
 <div class="container">
     <div class="row justify-content-center">
-        <h1>Популярные игры</h1>
-        
+        <h1>Популярные игры</h1>        
         @foreach (var gameProduct in Model)
         {
             <div class="col-sm-6 col-lg-4 d-flex justify-content-center mb-4">

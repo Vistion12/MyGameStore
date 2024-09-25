@@ -12,8 +12,6 @@ using System.Security.Claims;
 
 namespace MyGameStore.Controllers;
 
-
-
 public class HomeController(GameShopContext gameShopContext,
     IGameProductRepository gameProductRepository,
     IHttpContextAccessor httpContextAccessor) : Controller
@@ -21,7 +19,6 @@ public class HomeController(GameShopContext gameShopContext,
     private const int pageSize = 6;
     private const int minValueMonth = -1;
     private const int countPopGames = 100;
-
     public async Task<IActionResult> Index(
         string selectedGenreGameProduct,
         string selectedTitleGamePoduct,
@@ -53,27 +50,17 @@ public class HomeController(GameShopContext gameShopContext,
             SortGameProductState.TitleAsc => gameProducts.OrderBy(gameProduct => gameProduct.Title),
             SortGameProductState.TitleDesc => gameProducts.OrderByDescending(gameProduct => gameProduct.Title),
            _ => gameProducts
-        };
-
-        var count = await gameProducts.CountAsync();
-        var gameProductsResult = await gameProducts
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync();
+        };        
 
         var gameProductsVM = new GameProductsVM
         {
-            GameProducts = gameProductsResult,
-            PageViewModel = new(count, page, pageSize),
+            GameProducts = await PaginationList<GameProduct>.CreateAsync(gameProducts,page, pageSize),
             SortGPVM = new(sortGameProductState),
             FilteredGP_VM = new(new(gameProductGenre), selectedGenreGameProduct, selectedTitleGamePoduct)
 
         };
 		return View(gameProductsVM);
-    }
-
-       
-
+    }     
     public async Task<IActionResult> PopularGames()
     {
 
@@ -91,9 +78,13 @@ public class HomeController(GameShopContext gameShopContext,
 
         return View(dictionary);
     }
-    public IActionResult Recommendations() // эксперты рекомендовали
+    public async Task<IActionResult> Recommendations() // эксперты рекомендовали
     {
-        return View();
+        var recommendedGameProducts = await gameShopContext.RecommendedGameProducts
+            .Include(recom => recom.GameProduct)
+            .ToListAsync();
+
+        return View(recommendedGameProducts);
     }
     public async Task<IActionResult> WishList()
     {

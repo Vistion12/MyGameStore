@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35027.167
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyGameStore", "MyGameStore.csproj", "{2F946C4D-DE1D-4766-9674-B73AF78E52EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyGameStore", "MyGameStore.csproj", "{2F946C4D-DE1D-4766-9674-B73AF78E52EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyGameStoreModel", "..\MyGameStoreModel\MyGameStoreModel.csproj", "{0A655BD2-599D-4606-8E18-C890A119822C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyGameStoreModel", "..\MyGameStoreModel\MyGameStoreModel.csproj", "{0A655BD2-599D-4606-8E18-C890A119822C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameShop.Repository", "..\GameShop.Repositoery\GameShop.Repository.csproj", "{07ACDEA9-A4BA-4DE2-BB50-F0E2E8953F59}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{0A655BD2-599D-4606-8E18-C890A119822C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A655BD2-599D-4606-8E18-C890A119822C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A655BD2-599D-4606-8E18-C890A119822C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07ACDEA9-A4BA-4DE2-BB50-F0E2E8953F59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07ACDEA9-A4BA-4DE2-BB50-F0E2E8953F59}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07ACDEA9-A4BA-4DE2-BB50-F0E2E8953F59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07ACDEA9-A4BA-4DE2-BB50-F0E2E8953F59}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

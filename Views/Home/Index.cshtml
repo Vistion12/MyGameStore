@@ -6,29 +6,7 @@
 
 @model GameProductsVM
 
-<style>
-	@@font-face {
-		font-family: 'FontAwesome';
-		src: url('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/fonts/fontawesome-webfont.woff2') format('woff2'), url('https://maxcdn.bootstrapcdn.eom/font-awesoine/4.7.0/fonts/fontawesome-webfont.woff') format('woff'), url(‘https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/fonts/fontawesome-webfont.ttf') forraat('truetype'); font-weight: normal; font-style: normal
-	}
 
-	.glyphicon {
-		display: inline-block;
-		font: normal normal normal 14px/1 FontAwesome;
-		font-size: inherit;
-		text-rendering: auto;
-		-webkit-font-smoothing: antialiased;
-		-moz-osx-font-smoothing: grayscale
-	}
-
-	.glyphicon-chevron-right:before {
-		content: "\f054";
-	}
-
-	.glyphicon-chevron-left:before {
-		content: "\f053";
-	}
-</style>
 
 
 <div class="container">
@@ -80,31 +58,60 @@
 			</div>
 		}
 	</div>
-	@if (Model.PageViewModel.HasPreviousPage)
-	{
-		<a asp-action="Index"
-		   asp-route-page="@(Model.PageViewModel.PageNumber - 1)"
-		   asp-route-sortGameProductState="@(Model.SortGPVM.SortTitleGP)"
-		   asp-route-selectedGenreGameProduct="@(Model.FilteredGP_VM.SelectedGenreGameProduct)"
-		   asp-route-selectedTitleGamePoduct="@(Model.FilteredGP_VM.SelectedTitleGP)"
-		   class="btn btn-outline-dark">
-			<i class="glyphicon glyphicon-chevron-left"></i>
-			назад
-		</a>
-	}
+	@{
+		const string Disabled = "disabled";
+		const string Active = "active";
 
-	@if (Model.PageViewModel.HasNextPage)
-	{
-		<a asp-action="Index"
-		   asp-route-page="@(Model.PageViewModel.PageNumber + 1)"
-		   asp-route-sortGameProductState="@(Model.SortGPVM.SortTitleGP)"
-		   asp-route-selectedGenreGameProduct="@(Model.FilteredGP_VM.SelectedGenreGameProduct)"
-		   asp-route-selectedTitleGamePoduct="@(Model.FilteredGP_VM.SelectedTitleGP)"
-		   class="btn btn-outline-dark">
-			Вперед
-			<i class="glyphicon glyphicon-chevron-right"></i>
-		</a>
+		string isDisabledPreviousPage = string.Empty;
+		if(!Model.GameProducts.HasPreviousPage)
+		{
+			isDisabledPreviousPage = Disabled;
+		}
+		string isDisabledNextPage = string.Empty;
+		if (!Model.GameProducts.HasNextPage)
+		{
+			isDisabledNextPage = Disabled;
+		}
 	}
+	<nav class="mt-3">
+		<ul class="pagination">
+			<li class="page-item @isDisabledPreviousPage">
+				<a asp-action="Index"
+				   asp-route-page="@(Model.GameProducts.PageIndex - 1)"
+				   asp-route-sortGameProductState="@(Model.SortGPVM.SortTitleGP)"
+				   asp-route-selectedGenreGameProduct="@(Model.FilteredGP_VM.SelectedGenreGameProduct)"
+				   asp-route-selectedTitleGamePoduct="@(Model.FilteredGP_VM.SelectedTitleGP)"
+				   class="page-link"
+				   tabindex="-1"
+				   aria-disabled="@(!Model.GameProducts.HasPreviousPage)">назад:</a>
+			</li>
+			@for (int indexPage = 1; indexPage <= Model.GameProducts.TotalPages; indexPage++)
+			{
+				string isActive = string.Empty;
+				@if (indexPage == Model.GameProducts.PageIndex)
+				{
+					isActive = "active";
+				}
+				<li class="page-item @isActive">
+					<a asp-action="Index"
+					   asp-route-page="@indexPage"
+					   asp-route-sortMovieState="@(Model.SortGPVM.SortTitleGP)"
+					   asp-route-selectedMovieGenre="@(Model.FilteredGP_VM.SelectedGenreGameProduct)"
+					   asp-route-selectedMovieTitle="@(Model.FilteredGP_VM.SelectedTitleGP)"
+					   class="page-link">@indexPage</a>
+				</li>
+			}
+			<li class="page-item @isDisabledNextPage">
+				<a asp-action="Index"
+				   asp-route-page="@(Model.GameProducts.PageIndex + 1)"
+				   asp-route-sortGameProductState="@(Model.SortGPVM.SortTitleGP)"
+				   asp-route-selectedGenreGameProduct="@(Model.FilteredGP_VM.SelectedGenreGameProduct)"
+				   asp-route-selectedTitleGamePoduct="@(Model.FilteredGP_VM.SelectedTitleGP)"				   
+				   class="page-link"
+				   aria-disabled="Model.GameProducts.HasNextPage">вперед</a>
+			</li>
+		</ul>
+	</nav>	
 </div>
 
 
