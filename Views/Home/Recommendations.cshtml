@@ -1,33 +1,35 @@
-﻿@using MyGameStore.Extensions
+﻿@using MyGameStore.Controllers
+@using MyGameStore.Extensions
 @using MyGameStoreModel.Entities
+
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
-@model List<RecommendedGameProducts>
+@model Dictionary<NameSurname, List<GameProduct>>
 
 <div class="container mt-5">
-
-	<h1 class="mt-3">Пекомендации:</h1>
-	@foreach (var RecommendedGameProduct in Model)
-	{
-		<h2>@RecommendedGameProduct.ExpertName @RecommendedGameProduct.ExpertSurname пекомендует</h2>
-		<div class="row row-cols-4 gap-3 mt-4">
-			@foreach (var gameProduct in RecommendedGameProduct.GameProduct)
-			{
-				<div class="col-sm-6 col-lg-4 d-flex justify-content-center mb-4">
-					<div class="card" style="width: 18rem;">
-						<a asp-controller="Game" asp-action="Details" asp-route-id="@gameProduct.Id" style="text-decoration: inherit; color: inherit">
-							<img src="@gameProduct.TitulUrl" class="card-img-top" alt="@gameProduct.Title">
-							<div class="card-body">
-								<h5 class="card-title">@gameProduct.Title</h5>
-								<p class="card-text">@gameProduct.Description.Truncate(40)...</p>
-								<p class="card-text">@gameProduct.Price</p>
-								<a asp-controller="Game" asp-action="Details" asp-route-id="@gameProduct.Id" class="btn btn-primary">Купить</a>
-							</div>
-						</a>
-					</div>
-				</div>
-			}
-		</div>
-	}
+    <h1 class="mt-3">Рекомендации:</h1>
+    @foreach (var listGameProductsByExpert in Model)
+    {
+        <div class="row row-cols-4 gap-3 mt-4">
+            <div class="col-sm-12">
+                <h2>@listGameProductsByExpert.Key.Name @listGameProductsByExpert.Key.Surname рекомендует:</h2>
+                @foreach (var gameProduct in listGameProductsByExpert.Value)
+                {
+                    <div class="col-sm-3 d-flex justify-content-center mb-4">
+                        <div class="card" style="width: 18rem;">
+                            <a asp-controller="Game" asp-action="Details" asp-route-id="@gameProduct.Id" style="text-decoration: inherit; color: inherit">
+                                <img src="@gameProduct.TitulUrl" class="card-img-top" alt="@gameProduct.Title">
+                                <div class="card-body">
+                                    <h5 class="card-title">@gameProduct.Title</h5>
+                                    <p class="card-text">@gameProduct.Description.Truncate(40)...</p>
+                                    <p class="card-text">@gameProduct.Price</p>
+                                    <a asp-controller="Game" asp-action="Details" asp-route-id="@gameProduct.Id" class="btn btn-primary">Купить</a>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
 </div>
-

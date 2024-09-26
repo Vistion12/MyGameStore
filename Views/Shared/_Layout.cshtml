@@ -60,6 +60,10 @@
 	</nav>
 	<div>
 		@RenderBody()
+		@if(IsSectionDefined("scripts"))
+		{
+			RenderSection("scripts");
+		}
 	</div>
 	<div class="container">
 		<footer class="py-5">
